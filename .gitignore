@@ -1,0 +1,11 @@
+# Compiled binary (if you ever run `go build`)
+taskman
+
+# Personal task data — don't commit your actual tasks
+tasks.json
+
+# macOS junk
+.DS_Store
+
+# Editor
+.vscode/
