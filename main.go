@@ -16,6 +16,13 @@ type Task struct {
 	Done  bool
 }
 
+func addTask(tasks []Task, title string, id int) ([]Task, int) {
+	task := Task{ID: id, Title: title, Done: false}
+	tasks = append(tasks, task)
+	id++
+	return tasks, id
+}
+
 // saveTasks writes the current list of tasks to a JSON file. It returns an error if the operation fails.
 func saveTasks(tasks []Task) error {
 	data, err := json.MarshalIndent(tasks, "", "  ")
@@ -42,6 +49,17 @@ func loadTasks() ([]Task, error) {
 		return nil, err
 	}
 	return tasks, nil
+}
+
+// markDone sets the Done field of the task with the given ID to true. It returns true if the task was found and marked, or false if no task with that ID exists.
+func markDone(tasks []Task, id int) bool {
+	for i := range tasks {
+		if tasks[i].ID == id {
+			tasks[i].Done = true
+			return true // found and marked it
+		}
+	}
+	return false // no task with that ID
 }
 
 // main is the entry point of the application. It provides a terminal interface for managing tasks.
@@ -80,8 +98,7 @@ func main() {
 			title = strings.TrimSpace(title)
 
 			task := Task{ID: nextID, Title: title, Done: false}
-			tasks = append(tasks, task)
-			nextID++
+			tasks, nextID = addTask(tasks, title, nextID)
 
 			fmt.Printf("Added task #%d: %s\n", task.ID, task.Title)
 		// Save the tasks after adding a new one
@@ -110,17 +127,9 @@ func main() {
 				break
 			}
 
-			found := false
-			for i := range tasks {
-				if tasks[i].ID == id {
-					tasks[i].Done = true
-					found = true
-					fmt.Printf("Marked task #%d as done.\n", id)
-					break
-				}
-			}
-
-			if !found {
+			if markDone(tasks, id) {
+				fmt.Printf("Marked task #%d as done.\n", id)
+			} else {
 				fmt.Println("No task found with ID:", id)
 			}
 			// Save the tasks after marking one as done
